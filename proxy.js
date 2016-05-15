@@ -25,7 +25,7 @@ http.createServer(function(req, res) {
             res.writeHead(500);
             res.end('Oops, something went very wrong...');
         });
-    } else if (path.indexOf('/test') >= 0) {
+    } else if (path.indexOf('/whoami') >= 0) {
         proxy_test.proxyRequest(req, res);
         proxy_test.on('error', function(err, req, res) {
             if (err) console.log(err);
