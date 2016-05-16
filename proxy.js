@@ -8,11 +8,12 @@ var proxy_timeservice = new httpProxy.createProxyServer({
     }
 });
 
-var proxy_test = new httpProxy.createProxyServer({
+var proxy_whoami = new httpProxy.createProxyServer({
     target: {
         host: 'localhost',
         port: 8082
-    }
+    },
+    xfwd: true
 });
 
 http.createServer(function(req, res) {
@@ -26,8 +27,9 @@ http.createServer(function(req, res) {
             res.end('Oops, something went very wrong...');
         });
     } else if (path.indexOf('/whoami') >= 0) {
-        proxy_test.proxyRequest(req, res);
-        proxy_test.on('error', function(err, req, res) {
+        console.log('matched');
+        proxy_whoami.proxyRequest(req, res);
+        proxy_whoami.on('error', function(err, req, res) {
             if (err) console.log(err);
             res.writeHead(500);
             res.end('Oops, something went very wrong...');
