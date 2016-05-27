@@ -1,36 +1,31 @@
 var http = require('http');
 var httpProxy = require('http-proxy');
 
-var proxy_timeservice = new httpProxy.createProxyServer({
-    target: {
-        host: 'localhost',
-        port: 8081
-    }
-});
+var config = require('./config.json');
 
-var proxy_whoami = new httpProxy.createProxyServer({
-    target: {
-        host: 'localhost',
-        port: 8082
-    },
-    xfwd: true
-});
+var proxies = {};
+
+for (var i = 0; i < config.hosts.length; i++) {
+    var host = config.hosts[i];
+    proxies[host.name] = new httpProxy.createProxyServer({
+        target: {
+            host: host.host,
+            port: host.port
+        },
+        xfwd: (host.xfwd ? true : false)
+    });
+}
 
 http.createServer(function(req, res) {
     var path = require('url').parse(req.url).path;
-    if (path.indexOf('/timeservice') >= 0) {
-        proxy_timeservice.proxyRequest(req, res);
-        proxy_timeservice.on('error', function(err, req, res) {
-            if (err) console.log(err);
-            res.writeHead(500);
-            res.end('Oops, something went very wrong...');
-        });
-    } else if (path.indexOf('/whoami') >= 0) {
-        proxy_whoami.proxyRequest(req, res);
-        proxy_whoami.on('error', function(err, req, res) {
-            if (err) console.log(err);
-            res.writeHead(500);
-            res.end('Oops, something went very wrong...');
-        });
-    }
+    config.hosts.forEach(function(host){
+        if (path.indexOf(host.prefix) >= 0) {
+            proxies[host.name].proxyRequest(req, res);
+            proxies[host.name].on('error', function(err, req, res) {
+                if (err) console.log(err);
+                    res.writeHead(500);
+                    res.end('Oops, something went very wrong...');
+            });
+        }
+    });
 }).listen(8080);

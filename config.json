@@ -1,0 +1,23 @@
+{
+    "hosts":
+        [{
+            "name": "timeservice",
+            "host": "localhost",
+            "port": 8081,
+            "prefix": "/timeservice"
+        },
+        {
+            "name": "timeservice",
+            "host": "localhost",
+            "port": 8082,
+            "prefix": "/whoami",
+            "xfwd": true
+        },
+        {
+            "name": "url_shortener",
+            "host": "localhost",
+            "port": 8083,
+            "prefix": "/shortener"
+        }]
+    
+}
